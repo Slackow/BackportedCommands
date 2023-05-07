@@ -1,0 +1,112 @@
+plugins {
+	id 'java'
+	id 'xyz.wagyourtail.unimined' version "0.4.2-SNAPSHOT"
+	id 'maven-publish'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+	mavenCentral()
+
+	if (!project.use_yarn) {
+		// Forge maven for mcp mappings
+		maven {
+			url "https://maven.minecraftforge.net/"
+			metadataSources {
+				artifact()
+			}
+		}
+	}
+}
+
+unimined {
+	useGlobalCache = false
+}
+
+minecraft {
+	legacyFabric()
+
+	mcRemapper.tinyRemapperConf = {
+		if (!project.use_yarn) {
+			// most mcp mappings (except older format) dont include field desc
+			ignoreFieldDesc(true)
+		}
+		// this also fixes some issues with them, as it tells tiny remapper to try harder to resolve conflicts
+		ignoreConflicts(true)
+	}
+}
+
+dependencies {
+	minecraft "net.minecraft:minecraft:${project.minecraft_version}"
+
+	if (!project.use_yarn) {
+		if (!project.use_mcp_from_forge) {
+			mappings "de.oceanlabs.mcp:mcp:${project.minecraft_version}:srg@zip"
+			mappings "de.oceanlabs.mcp:mcp_${project.mcp_channel}:${project.mcp_version}-${project.minecraft_version}@zip"
+		} else {
+			mappings "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}:src@zip"
+		}
+	}
+
+	mappings "net.legacyfabric:intermediary:${project.minecraft_version}:v2"
+	if (project.use_yarn) mappings "net.legacyfabric:yarn:${project.yarn_mappings}:v2"
+
+	fabric "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API provides hooks for events, item registration, and more. As most mods will need this, it's included by default.
+	// If you know for a fact you don't, it's not required and can be safely removed.
+	modImplementation ("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:${project.fabric_version}")
+
+	// You can retrieve a specific api module using this notation.
+//	modImplementation(legacyFabricApi.module("legacy-fabric-item-groups-v1", project.fabric_version))
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+// ensure that the encoding is set to UTF-8, no matter what the system default is
+// this fixes some edge cases with special characters not displaying correctly
+// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	if (JavaVersion.current().isJava9Compatible()) it.options.release = 8
+}
+
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}" }
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+
+	// select the repositories you want to publish to
+	repositories {
+		// uncomment to publish to the local maven
+		// mavenLocal()
+	}
+}
