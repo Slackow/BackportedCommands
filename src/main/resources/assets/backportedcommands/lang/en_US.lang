@@ -1,0 +1,27 @@
+commands.fill.tooManyBlocks=Too many blocks in the specified area (%s > %s)
+commands.fill.outOfWorld=Cannot place blocks outside of the world
+commands.fill.tagError=Data tag parsing failed: %s
+commands.fill.failed=No blocks filled
+commands.fill.usage=/fill <x y z> <x2 y2 z2> <block> [state] [replace|destroy|keep|hollow|outline]
+commands.fill.success=Successfully filled %s blocks
+
+commands.clone.tooManyBlocks=Too many blocks in the specified area (%s > %s)
+commands.clone.outOfWorld=Cannot place blocks outside of the world
+commands.clone.tagError=Data tag parsing failed: %s
+commands.clone.failed=No blocks cloned
+commands.clone.usage=/clone <x1 y2 z3> <x2 y2 z2> <x y z> [masked|replace|filtered] [force|move|normal]
+commands.clone.success=Successfully filled %s blocks
+commands.clone.noOverlap=Source and destination coordinates overlap
+
+commands.function.usage=/function <function>
+commands.function.failed=No function '%s' found
+commands.function.success=Ran %s commands
+commands.function.x_failed=Failed to run %s commands:%s
+
+commands.reload.usage=/reload
+commands.reload.success=Reloaded!
+commands.reload.failed=Failed to reload, this is an error!
+
+commands.dir.usage=/dir
+commands.dir.success=Opened Running Directory
+commands.dir.failed=Failed to open Running Directory
